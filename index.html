@@ -7,7 +7,6 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" rel="preload" as="script">
 <style>
 :root{
   --dark:#0B1C1A;--vermilion:#C13B2A;--sky:#5C9DC8;
@@ -25,15 +24,10 @@ body.dark-mode{
 *{box-sizing:border-box;margin:0;padding:0;}
 html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 body{font-family:var(--font);background:var(--off-white);color:var(--ink);min-height:100vh;overflow-x:hidden;font-size:16px;transition:background 300ms,color 300ms;}
-
-/* ─── DARK MODE TOGGLE ─── */
-.theme-toggle{
-  position:fixed;bottom:28px;right:28px;z-index:150;width:56px;height:56px;border-radius:50%;background:var(--dark);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all 260ms var(--es);color:#fff;font-size:20px;}
+.theme-toggle{position:fixed;bottom:28px;right:28px;z-index:150;width:56px;height:56px;border-radius:50%;background:var(--dark);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all 260ms var(--es);color:#fff;font-size:20px;}
 .theme-toggle:hover{transform:scale(1.08);box-shadow:0 8px 32px rgba(0,0,0,.3);}
 .theme-toggle:active{transform:scale(.96);}
 body.dark-mode .theme-toggle{background:#fff;color:var(--dark);}
-
-/* ─── SIDEBAR ─── */
 .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sw);background:var(--dark);display:flex;flex-direction:column;z-index:100;transition:transform 360ms var(--es);will-change:transform;}
 body.dark-mode .sidebar{background:#0f0f14;}
 .logo-wrap{padding:28px 22px 22px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:13px;flex-shrink:0;}
@@ -47,15 +41,11 @@ nav{flex:1;padding:18px 10px;display:flex;flex-direction:column;gap:1px;overflow
 .nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88);}
 .nav-item.active{background:var(--vermilion);color:#fff;}
 .nav-item.active svg{opacity:1;}
-
-/* ─── MAIN ─── */
 .main{margin-left:var(--sw);min-height:100vh;display:flex;flex-direction:column;background:var(--bg);}
 .topbar{position:sticky;top:0;z-index:50;background:rgba(249,249,247,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 40px;height:66px;display:flex;align-items:center;justify-content:space-between;transition:background 300ms;}
 body.dark-mode .topbar{background:rgba(15,20,25,.92);}
 .topbar h1{font-family:var(--font);font-weight:600;font-size:22px;color:var(--text-primary);letter-spacing:.2px;}
 .topbar-actions{display:flex;gap:8px;align-items:center;}
-
-/* ─── BUTTONS ─── */
 .btn{padding:9px 22px;border-radius:var(--rb);border:none;font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;transition:background 160ms var(--em),transform 120ms var(--em),box-shadow 160ms var(--em);}
 .btn:active{transform:scale(.97);}
 .btn-primary{background:var(--vermilion);color:#fff;}
@@ -67,14 +57,10 @@ body.dark-mode .btn-ghost:hover{border-color:#fff;}
 .btn-del{background:transparent;border:none;color:var(--vermilion);cursor:pointer;padding:4px 9px;font-size:13px;border-radius:var(--rb);transition:background 150ms;font-family:var(--font);}
 .btn-del:hover{background:var(--red-bg);}
 .hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;color:var(--text-primary);}
-
-/* ─── CONTENT ─── */
 .content{flex:1;padding:40px;max-width:1400px;width:100%;margin:0 auto;}
 .page{display:none;}
 .page.active{display:block;animation:fadeUp 380ms var(--es) both;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-
-/* ─── STAT CARDS ─── */
 .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:32px;}
 .stat-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:26px 24px 22px;box-shadow:var(--sc);position:relative;overflow:hidden;transition:all 220ms var(--es);}
 .stat-card:hover{transform:translateY(-3px);box-shadow:var(--se);}
@@ -90,8 +76,6 @@ body.dark-mode .btn-ghost:hover{border-color:#fff;}
 .stat-card.profit .stat-value{color:var(--dark);}
 .stat-card.assets .stat-value{color:var(--sky);}
 .stat-sub{font-size:13px;color:var(--text-secondary);font-style:italic;}
-
-/* ─── TABLE WRAPPER ─── */
 .tbl-wrap{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sc);overflow:hidden;}
 .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .tbl-hdr{padding:20px 26px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;}
@@ -105,8 +89,6 @@ tr:hover td{background:var(--surf);}
 .ap{color:var(--green);font-weight:600;font-variant-numeric:tabular-nums;}
 .an{color:var(--vermilion);font-weight:600;font-variant-numeric:tabular-nums;}
 .am{font-variant-numeric:tabular-nums;}
-
-/* ─── BADGES ─── */
 .badge{display:inline-block;padding:3px 10px;border-radius:2px;font-size:10px;font-family:var(--font);font-weight:600;letter-spacing:.8px;text-transform:uppercase;}
 .bi{background:var(--green-bg);color:var(--green);}
 .be{background:var(--red-bg);color:var(--vermilion);}
@@ -118,8 +100,6 @@ body.dark-mode .be{background:rgba(193,59,42,.2);}
 body.dark-mode .ba{background:rgba(92,157,200,.15);}
 body.dark-mode .bl{background:rgba(255,255,255,.1);}
 body.dark-mode .bq{background:rgba(255,255,255,.08);}
-
-/* ─── MODAL ─── */
 .modal-ov{position:fixed;inset:0;background:rgba(11,28,26,.52);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);opacity:0;pointer-events:none;transition:opacity 260ms var(--es);}
 .modal-ov.open{opacity:1;pointer-events:all;}
 .modal{background:var(--bg);border-radius:var(--r);padding:34px;width:100%;max-width:540px;transform:translateY(18px) scale(.98);transition:transform 260ms var(--es);max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);}
@@ -134,8 +114,6 @@ input,select,textarea{background:var(--bg);border:1.5px solid var(--border);bord
 input:focus,select:focus,textarea:focus{border-color:var(--dark);background:var(--bg);}
 textarea{resize:vertical;min-height:76px;}
 .mf{display:flex;gap:10px;justify-content:flex-end;margin-top:26px;flex-wrap:wrap;}
-
-/* ─── REPORT ─── */
 .rpt-hdr{text-align:center;padding:36px 24px 26px;border-bottom:1px solid var(--border);margin-bottom:0;background:var(--surf);}
 .rpt-co{font-family:var(--font);font-weight:700;font-size:30px;letter-spacing:5px;color:var(--dark);}
 body.dark-mode .rpt-co{color:var(--sky);}
@@ -162,46 +140,30 @@ body.dark-mode .rpt-row.net{background:var(--sky);color:#000;}
 .bal-row.no{background:var(--red-bg);color:var(--vermilion);}
 .two-col{display:grid;grid-template-columns:1fr 1fr;}
 .two-col>div:first-child{border-right:1px solid var(--border);}
-
-/* ─── PERIOD BUTTONS ─── */
 .period-wrap{display:flex;gap:8px;margin-bottom:26px;flex-wrap:wrap;}
 .period-btn{padding:8px 18px;border-radius:var(--rb);border:1.5px solid var(--border);background:transparent;color:var(--text-secondary);font-family:var(--font);font-size:14px;font-weight:500;cursor:pointer;transition:all 160ms var(--em);}
 .period-btn:hover{border-color:var(--dark);color:var(--text-primary);}
 .period-btn.active{background:var(--dark);color:#fff;border-color:var(--dark);}
 body.dark-mode .period-btn.active{background:var(--sky);color:#000;}
-
-/* ─── SEARCH ─── */
 .flex-gap{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:22px;}
 .si{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rb);padding:9px 15px;color:var(--text-primary);font-family:var(--font);font-size:15px;outline:none;transition:border-color 150ms;}
 .si:focus{border-color:var(--dark);}
 .si-search{min-width:220px;flex:1 1 220px;}
 .si-filter{min-width:150px;}
-
-/* ─── EMPTY STATE ─── */
 .empty{text-align:center;padding:60px 20px;color:var(--text-secondary);}
 .empty svg{width:44px;height:44px;margin-bottom:16px;opacity:.25;stroke:var(--text-primary);}
 .empty p{font-size:16px;font-style:italic;}
-
-/* ─── MOBILE OVERLAY ─── */
 #mob-ov{display:none;position:fixed;inset:0;background:rgba(11,28,26,.48);z-index:99;}
-
-/* ─── SECTION HEADER ─── */
 .sec-head{display:flex;justify-content:flex-end;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
-
-/* ─── STATUS MESSAGE ─── */
 .status-msg{position:fixed;top:20px;right:20px;z-index:300;padding:14px 20px;border-radius:var(--rb);background:var(--green);color:#fff;font-family:var(--font);font-size:14px;animation:slideIn 260ms var(--es) both;box-shadow:0 4px 16px rgba(0,0,0,.2);}
 @keyframes slideIn{from{transform:translateX(400px);opacity:0;}to{transform:translateX(0);opacity:1;}}
 .status-msg.error{background:var(--vermilion);}
-
-/* ─── PRINT ─── */
 @media print{
   .sidebar,.topbar,.period-wrap,.flex-gap,.btn,.hamburger,.btn-del,.sec-head,.theme-toggle{display:none!important;}
   .main{margin-left:0!important;}body{background:#fff;}
   .page{display:block!important;}.page:not(.active){display:none!important;}
   .tbl-scroll{overflow:visible;}
 }
-
-/* ─── RESPONSIVE ─── */
 @media(max-width:1400px){
   .content{padding:32px;}
 }
@@ -322,7 +284,7 @@ body.dark-mode .period-btn.active{background:var(--sky);color:#000;}
       <h1 id="ptitle">Dashboard</h1>
     </div>
     <div class="topbar-actions">
-      <button class="btn btn-ghost btn-sm" onclick="saveToExcel()" title="Save data to Excel">💾 Save</button>
+      <button class="btn btn-ghost btn-sm" onclick="syncToGitHub()" title="Sync to GitHub">☁️ Sync</button>
       <button class="btn btn-ghost btn-sm" onclick="downloadPDF()" title="Download as PDF">📥 PDF</button>
       <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨️ Print</button>
       <button class="btn btn-primary btn-sm" onclick="openModal()">+ Entry</button>
@@ -330,8 +292,6 @@ body.dark-mode .period-btn.active{background:var(--sky);color:#000;}
   </div>
 
   <div class="content">
-
-    <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
       <div class="stat-grid" id="stat-grid"></div>
       <div class="tbl-wrap">
@@ -342,8 +302,6 @@ body.dark-mode .period-btn.active{background:var(--sky);color:#000;}
         <div class="tbl-scroll" id="recent-table"></div>
       </div>
     </div>
-
-    <!-- LEDGER -->
     <div class="page" id="page-ledger">
       <div class="flex-gap">
         <input class="si si-search" id="ls" placeholder="Search by description, account, reference…" oninput="renderLedger()" autocomplete="off">
@@ -358,14 +316,10 @@ body.dark-mode .period-btn.active{background:var(--sky);color:#000;}
       </div>
       <div class="tbl-wrap" id="ledger-tbl"></div>
     </div>
-
-    <!-- ACCOUNTS -->
     <div class="page" id="page-accounts">
       <div class="sec-head"><button class="btn btn-primary btn-sm" onclick="openAccModal()">+ Add Account</button></div>
       <div class="tbl-wrap" id="acc-tbl"></div>
     </div>
-
-    <!-- P&L -->
     <div class="page" id="page-pl">
       <div class="period-wrap">
         <button class="period-btn active" onclick="setP('pl','all',this)">All Time</button>
@@ -375,8 +329,6 @@ body.dark-mode .period-btn.active{background:var(--sky);color:#000;}
       </div>
       <div class="tbl-wrap" id="pl-rpt"></div>
     </div>
-
-    <!-- I&E -->
     <div class="page" id="page-ie">
       <div class="period-wrap">
         <button class="period-btn active" onclick="setP('ie','all',this)">All Time</button>
@@ -386,17 +338,11 @@ body.dark-mode .period-btn.active{background:var(--sky);color:#000;}
       </div>
       <div class="tbl-wrap" id="ie-rpt"></div>
     </div>
-
-    <!-- BALANCE SHEET -->
     <div class="page" id="page-bs"><div class="tbl-wrap" id="bs-rpt"></div></div>
-
-    <!-- TRIAL BALANCE -->
     <div class="page" id="page-tb"><div class="tbl-wrap" id="tb-rpt"></div></div>
-
   </div>
 </div>
 
-<!-- ENTRY MODAL -->
 <div class="modal-ov" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal">
     <h2 id="modal-title">New Journal Entry</h2>
@@ -425,7 +371,6 @@ body.dark-mode .period-btn.active{background:var(--sky);color:#000;}
   </div>
 </div>
 
-<!-- ACCOUNT MODAL -->
 <div class="modal-ov" id="acc-modal" role="dialog" aria-modal="true" aria-labelledby="acc-modal-title">
   <div class="modal">
     <h2 id="acc-modal-title">Add Account</h2>
@@ -453,7 +398,6 @@ body.dark-mode .period-btn.active{background:var(--sky);color:#000;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
 <script>
-// ─── DATA ───
 let D = JSON.parse(localStorage.getItem('ocelli_v5') || 'null') || {
   entries: [],
   accounts: [
@@ -478,8 +422,6 @@ let D = JSON.parse(localStorage.getItem('ocelli_v5') || 'null') || {
   nextId: 1
 };
 
-let autoSaveTimer;
-
 function showStatus(msg, isError=false) {
   const div = document.createElement('div');
   div.className = 'status-msg' + (isError ? ' error' : '');
@@ -490,51 +432,31 @@ function showStatus(msg, isError=false) {
 
 function save() {
   localStorage.setItem('ocelli_v5', JSON.stringify(D));
-  clearTimeout(autoSaveTimer);
-  autoSaveTimer = setTimeout(() => showStatus('Auto-saved'), 500);
 }
 
-function loadFromExcel(file) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const wb = XLSX.read(e.target.result, {type:'array'});
-      const entries = XLSX.utils.sheet_to_json(wb.Sheets['Entries'] || wb.Sheets[Object.keys(wb.Sheets)[0]]);
-      D.entries = entries.map((r, i) => ({
-        id: i+1,
-        date: r.Date || new Date().toISOString().split('T')[0],
-        type: r.Type || 'expense',
-        account: r.Account || '',
-        desc: r.Description || '',
-        amount: parseFloat(r.Amount) || 0,
-        ref: r.Reference || '',
-        notes: r.Notes || ''
-      })).filter(e => e.account && e.amount > 0);
-      D.nextId = (Math.max(0, ...D.entries.map(e => e.id)) || 0) + 1;
-      save();
-      showStatus('Data loaded from Excel!');
-      refreshCurrentPage();
-    } catch(err) { showStatus('Error loading file', true); }
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-function saveToExcel() {
-  const wb = XLSX.utils.book_new();
-  const entries = D.entries.map(e => ({
-    Date: e.date,
-    Type: e.type,
-    Account: e.account,
-    Description: e.desc,
-    Amount: e.amount,
-    Reference: e.ref,
-    Notes: e.notes
-  }));
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(entries), 'Entries');
-  const accounts = D.accounts.map(a => ({Name:a.name,Type:a.type,Code:a.code}));
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(accounts), 'Accounts');
-  XLSX.writeFile(wb, 'Ocelli_Financials_' + new Date().toISOString().split('T')[0] + '.xlsx');
-  showStatus('Excel file downloaded!');
+async function syncToGitHub() {
+  showStatus('Syncing to GitHub...');
+  try {
+    const wb = XLSX.utils.book_new();
+    const entries = D.entries.map(e => ({Date:e.date,Type:e.type,Account:e.account,Description:e.desc,Amount:e.amount,Reference:e.ref,Notes:e.notes}));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(entries), 'Entries');
+    const accounts = D.accounts.map(a => ({Name:a.name,Type:a.type,Code:a.code}));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(accounts), 'Accounts');
+    const blob = XLSX.write(wb, {bookType:'xlsx',type:'array'});
+    const b64 = btoa(String.fromCharCode(...blob));
+    const response = await fetch('/.github/api/repos/ocelliarts/accounts/contents/FINANCIALS.xlsx', {
+      method: 'PUT',
+      headers: {'Authorization': `Bearer ${localStorage.getItem('gh_token')||''}`, 'Content-Type': 'application/json'},
+      body: JSON.stringify({message:'Auto-sync: Update financial data',content:b64})
+    });
+    if (response.ok) {
+      showStatus('✓ Synced to GitHub Excel file!');
+    } else {
+      showStatus('Tip: Export to Excel locally to save data (requires GitHub token for auto-sync)', true);
+    }
+  } catch(e) {
+    showStatus('Download Excel file instead', true);
+  }
 }
 
 function downloadPDF() {
@@ -603,34 +525,16 @@ function renderStats() {
   const net = inc - exp;
   const assets = sumByType('asset');
   document.getElementById('stat-grid').innerHTML = `
-    <div class="stat-card income">
-      <div class="stat-label">Total Income</div>
-      <div class="stat-value">${fmt(inc)}</div>
-      <div class="stat-sub">All-time revenue</div>
-    </div>
-    <div class="stat-card expense">
-      <div class="stat-label">Total Expenses</div>
-      <div class="stat-value">${fmt(exp)}</div>
-      <div class="stat-sub">All-time costs</div>
-    </div>
-    <div class="stat-card profit">
-      <div class="stat-label">Net ${net >= 0 ? 'Profit' : 'Loss'}</div>
-      <div class="stat-value">${fmt(net)}</div>
-      <div class="stat-sub">${net >= 0 ? 'Surplus' : 'Deficit'}</div>
-    </div>
-    <div class="stat-card assets">
-      <div class="stat-label">Total Assets</div>
-      <div class="stat-value">${fmt(assets)}</div>
-      <div class="stat-sub">Asset value recorded</div>
-    </div>`;
+    <div class="stat-card income"><div class="stat-label">Total Income</div><div class="stat-value">${fmt(inc)}</div><div class="stat-sub">All-time revenue</div></div>
+    <div class="stat-card expense"><div class="stat-label">Total Expenses</div><div class="stat-value">${fmt(exp)}</div><div class="stat-sub">All-time costs</div></div>
+    <div class="stat-card profit"><div class="stat-label">Net ${net >= 0 ? 'Profit' : 'Loss'}</div><div class="stat-value">${fmt(net)}</div><div class="stat-sub">${net >= 0 ? 'Surplus' : 'Deficit'}</div></div>
+    <div class="stat-card assets"><div class="stat-label">Total Assets</div><div class="stat-value">${fmt(assets)}</div><div class="stat-sub">Asset value recorded</div></div>`;
 }
 
 function renderRecent() {
   const rows = [...D.entries].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
   document.getElementById('recent-table').innerHTML = rows.length
-    ? `<table><thead><tr><th>Date</th><th>Account</th><th>Description</th><th>Type</th><th style="text-align:right">Amount</th><th></th></tr></thead><tbody>${
-        rows.map(e => `<tr><td style="color:var(--text-secondary);font-size:13px;white-space:nowrap;">${fmtDate(e.date)}</td><td style="font-weight:600;">${e.account}</td><td>${e.desc}${e.notes?`<br><small style="color:var(--text-secondary);font-style:italic">${e.notes}</small>`:""}  </td><td><span class="badge ${BADGE[e.type]}">${e.type}</span></td><td style="text-align:right" class="${e.type==='income'||e.type==='asset'?'ap':'an'}">${fmt(e.amount)}</td><td><button class="btn-del" onclick="delEntry(${e.id})" title="Delete">✕</button></td></tr>`).join('')
-      }</tbody></table>`
+    ? `<table><thead><tr><th>Date</th><th>Account</th><th>Description</th><th>Type</th><th style="text-align:right">Amount</th><th></th></tr></thead><tbody>${rows.map(e => `<tr><td style="color:var(--text-secondary);font-size:13px;white-space:nowrap;">${fmtDate(e.date)}</td><td style="font-weight:600;">${e.account}</td><td>${e.desc}${e.notes?`<br><small style="color:var(--text-secondary);font-style:italic">${e.notes}</small>`:""}</td><td><span class="badge ${BADGE[e.type]}">${e.type}</span></td><td style="text-align:right" class="${e.type==='income'||e.type==='asset'?'ap':'an'}">${fmt(e.amount)}</td><td><button class="btn-del" onclick="delEntry(${e.id})" title="Delete">✕</button></td></tr>`).join('')}</tbody></table>`
     : `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg><p>No transactions yet</p></div>`;
 }
 
@@ -641,9 +545,7 @@ function renderLedger() {
   if (q) rows = rows.filter(e => e.desc.toLowerCase().includes(q) || e.account.toLowerCase().includes(q) || (e.ref || '').toLowerCase().includes(q) || (e.notes || '').toLowerCase().includes(q));
   if (f) rows = rows.filter(e => e.type === f);
   document.getElementById('ledger-tbl').innerHTML = rows.length
-    ? `<div class="tbl-hdr"><h3>${rows.length} ${rows.length===1?'Entry':'Entries'}</h3></div><div class="tbl-scroll"><table><thead><tr><th>Date</th><th>Ref</th><th>Account</th><th>Description</th><th>Type</th><th style="text-align:right">Amount</th><th></th></tr></thead><tbody>${
-        rows.map(e => `<tr><td style="color:var(--text-secondary);font-size:13px;white-space:nowrap;">${fmtDate(e.date)}</td><td style="color:var(--text-secondary);font-size:13px;">${e.ref || '—'}</td><td style="font-weight:600;">${e.account}</td><td>${e.desc}${e.notes?`<br><small style="color:var(--text-secondary);font-style:italic">${e.notes}</small>`:""}</td><td><span class="badge ${BADGE[e.type]}">${e.type}</span></td><td style="text-align:right" class="${e.type==='income'||e.type==='asset'?'ap':'an'}">${fmt(e.amount)}</td><td><button class="btn-del" onclick="delEntry(${e.id})" title="Delete">✕</button></td></tr>`).join('')
-      }</tbody></table></div>`
+    ? `<div class="tbl-hdr"><h3>${rows.length} ${rows.length===1?'Entry':'Entries'}</h3></div><div class="tbl-scroll"><table><thead><tr><th>Date</th><th>Ref</th><th>Account</th><th>Description</th><th>Type</th><th style="text-align:right">Amount</th><th></th></tr></thead><tbody>${rows.map(e => `<tr><td style="color:var(--text-secondary);font-size:13px;white-space:nowrap;">${fmtDate(e.date)}</td><td style="color:var(--text-secondary);font-size:13px;">${e.ref || '—'}</td><td style="font-weight:600;">${e.account}</td><td>${e.desc}${e.notes?`<br><small style="color:var(--text-secondary);font-style:italic">${e.notes}</small>`:""}</td><td><span class="badge ${BADGE[e.type]}">${e.type}</span></td><td style="text-align:right" class="${e.type==='income'||e.type==='asset'?'ap':'an'}">${fmt(e.amount)}</td><td><button class="btn-del" onclick="delEntry(${e.id})" title="Delete">✕</button></td></tr>`).join('')}</tbody></table></div>`
     : `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg><p>No entries match your filters</p></div>`;
 }
 
@@ -669,11 +571,9 @@ function renderPL() {
   let h = rptHdr('Profit & Loss Statement');
   h += `<div class="rpt-sec grn">Revenue</div>`;
   D.accounts.filter(a=>a.type==='income').forEach(a => { const v = sum(fe, e => e.account === a.name); if (v) h += `<div class="rpt-row"><span>${a.name}</span><span class="rv ap">${fmt(v)}</span></div>`; });
-  h += `<div class="rpt-row tot"><span>Total Revenue</span><span class="rv ap">${fmt(ti)}</span></div>`;
-  h += `<div class="rpt-sec red" style="margin-top:6px;">Expenses</div>`;
+  h += `<div class="rpt-row tot"><span>Total Revenue</span><span class="rv ap">${fmt(ti)}</span></div><div class="rpt-sec red" style="margin-top:6px;">Expenses</div>`;
   D.accounts.filter(a=>a.type==='expense').forEach(a => { const v = sum(fe, e => e.account === a.name); if (v) h += `<div class="rpt-row"><span>${a.name}</span><span class="rv an">${fmt(v)}</span></div>`; });
-  h += `<div class="rpt-row tot"><span>Total Expenses</span><span class="rv an">${fmt(te)}</span></div>`;
-  h += `<div class="rpt-row net"><span>NET ${net>=0?'PROFIT':'LOSS'}</span><span class="rv" style="color:${net>=0?'#9febb0':'#ffbdbd'}">${fmt(net)}</span></div>`;
+  h += `<div class="rpt-row tot"><span>Total Expenses</span><span class="rv an">${fmt(te)}</span></div><div class="rpt-row net"><span>NET ${net>=0?'PROFIT':'LOSS'}</span><span class="rv" style="color:${net>=0?'#9febb0':'#ffbdbd'}">${fmt(net)}</span></div>`;
   document.getElementById('pl-rpt').innerHTML = h;
 }
 
@@ -766,12 +666,7 @@ function saveEntry() {
   if (!desc)             { showStatus('Please enter a description.', true); return; }
   if (!amount || isNaN(amount) || amount <= 0) { showStatus('Enter valid positive amount.', true); return; }
   if (!account)          { showStatus('Please select an account.', true); return; }
-  D.entries.push({
-    id: D.nextId++,
-    date, type, account, desc, amount,
-    ref:   document.getElementById('fref').value.trim(),
-    notes: document.getElementById('fnotes').value.trim()
-  });
+  D.entries.push({id:D.nextId++,date,type,account,desc,amount,ref:document.getElementById('fref').value.trim(),notes:document.getElementById('fnotes').value.trim()});
   save();
   closeModal();
   refreshCurrentPage();
@@ -833,7 +728,6 @@ function refreshCurrentPage() {
   ({dashboard:()=>{renderStats();renderRecent();},ledger:renderLedger,accounts:renderAccounts,pl:renderPL,ie:renderIE,bs:renderBS,tb:renderTB})[pg]?.();
 }
 
-// THEME TOGGLE
 const themeToggle = document.getElementById('themeToggle');
 const isDark = localStorage.getItem('dark-mode') === 'true';
 if (isDark) document.body.classList.add('dark-mode');
@@ -845,7 +739,6 @@ themeToggle.addEventListener('click', () => {
   themeToggle.textContent = isDarkNow ? '☀️' : '🌙';
 });
 
-// CLOSE MODALS
 document.getElementById('modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
 document.getElementById('acc-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeAccModal(); });
 
@@ -856,7 +749,6 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// INIT
 renderStats();
 renderRecent();
 popAccSel();
