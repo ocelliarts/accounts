@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
 <title>Ocelli — Financial Ledger</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Ccircle cx='18' cy='18' r='16' fill='%230B1C1A'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap" rel="stylesheet">
 <style>
@@ -284,7 +284,7 @@ body.dark-mode .period-btn.active{background:var(--sky);color:#000;}
       <h1 id="ptitle">Dashboard</h1>
     </div>
     <div class="topbar-actions">
-      <button class="btn btn-ghost btn-sm" onclick="syncToGitHub()" title="Sync to GitHub">☁️ Sync</button>
+      <button class="btn btn-ghost btn-sm" id="syncBtn" onclick="syncExcel()" title="Sync with Excel">💾 Sync</button>
       <button class="btn btn-ghost btn-sm" onclick="downloadPDF()" title="Download as PDF">📥 PDF</button>
       <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨️ Print</button>
       <button class="btn btn-primary btn-sm" onclick="openModal()">+ Entry</button>
@@ -398,44 +398,86 @@ body.dark-mode .period-btn.active{background:var(--sky);color:#000;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
 <script>
-let D = JSON.parse(localStorage.getItem('ocelli_v5') || 'null') || {
-  entries: [],
-  accounts: [
-    {id:1,name:'Sales Revenue',type:'income',code:'4001'},
-    {id:2,name:'Service Revenue',type:'income',code:'4002'},
-    {id:3,name:'Other Income',type:'income',code:'4003'},
-    {id:4,name:'Cost of Goods Sold',type:'expense',code:'5001'},
-    {id:5,name:'Salaries & Wages',type:'expense',code:'5002'},
-    {id:6,name:'Rent',type:'expense',code:'5003'},
-    {id:7,name:'Utilities',type:'expense',code:'5004'},
-    {id:8,name:'Marketing & Advertising',type:'expense',code:'5005'},
-    {id:9,name:'Office Supplies',type:'expense',code:'5006'},
-    {id:10,name:'Cash',type:'asset',code:'1001'},
-    {id:11,name:'Bank Account',type:'asset',code:'1002'},
-    {id:12,name:'Accounts Receivable',type:'asset',code:'1003'},
-    {id:13,name:'Fixed Assets',type:'asset',code:'1004'},
-    {id:14,name:'Accounts Payable',type:'liability',code:'2001'},
-    {id:15,name:'Loans Payable',type:'liability',code:'2002'},
-    {id:16,name:'Owner Equity',type:'equity',code:'3001'},
-    {id:17,name:'Retained Earnings',type:'equity',code:'3002'}
-  ],
-  nextId: 1
-};
+const REPO = 'ocelliarts/accounts';
+const FILE = 'FINANCIALS.xlsx';
+const GH_TOKEN = localStorage.getItem('gh_token') || '';
+const GH_API = 'https://api.github.com';
+
+let D = {entries: [], accounts: [
+  {id:1,name:'Sales Revenue',type:'income',code:'4001'},
+  {id:2,name:'Service Revenue',type:'income',code:'4002'},
+  {id:3,name:'Other Income',type:'income',code:'4003'},
+  {id:4,name:'Cost of Goods Sold',type:'expense',code:'5001'},
+  {id:5,name:'Salaries & Wages',type:'expense',code:'5002'},
+  {id:6,name:'Rent',type:'expense',code:'5003'},
+  {id:7,name:'Utilities',type:'expense',code:'5004'},
+  {id:8,name:'Marketing & Advertising',type:'expense',code:'5005'},
+  {id:9,name:'Office Supplies',type:'expense',code:'5006'},
+  {id:10,name:'Cash',type:'asset',code:'1001'},
+  {id:11,name:'Bank Account',type:'asset',code:'1002'},
+  {id:12,name:'Accounts Receivable',type:'asset',code:'1003'},
+  {id:13,name:'Fixed Assets',type:'asset',code:'1004'},
+  {id:14,name:'Accounts Payable',type:'liability',code:'2001'},
+  {id:15,name:'Loans Payable',type:'liability',code:'2002'},
+  {id:16,name:'Owner Equity',type:'equity',code:'3001'},
+  {id:17,name:'Retained Earnings',type:'equity',code:'3002'}
+], nextId: 1};
 
 function showStatus(msg, isError=false) {
   const div = document.createElement('div');
   div.className = 'status-msg' + (isError ? ' error' : '');
   div.textContent = msg;
   document.body.appendChild(div);
-  setTimeout(() => div.remove(), 2500);
+  setTimeout(() => div.remove(), 3000);
 }
 
-function save() {
-  localStorage.setItem('ocelli_v5', JSON.stringify(D));
+function saveLocal() {
+  localStorage.setItem('ocelli_v6', JSON.stringify(D));
 }
 
-async function syncToGitHub() {
-  showStatus('Syncing to GitHub...');
+async function loadFromExcel() {
+  if (!GH_TOKEN) {
+    const local = localStorage.getItem('ocelli_v6');
+    if (local) D = JSON.parse(local);
+    return;
+  }
+  try {
+    showStatus('Loading from Excel...');
+    const res = await fetch(`${GH_API}/repos/${REPO}/contents/${FILE}`, {
+      headers: {'Authorization': `Bearer ${GH_TOKEN}`, 'Accept': 'application/vnd.github.v3.raw'}
+    });
+    if (!res.ok) throw new Error('File not found');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = () => {
+      const wb = XLSX.read(new Uint8Array(xhr.response), {type:'array'});
+      const entries = XLSX.utils.sheet_to_json(wb.Sheets['Entries'] || {});
+      D.entries = entries.map(e => ({id:D.nextId++,date:e.Date,type:e.Type,account:e.Account,desc:e.Description,amount:+e.Amount,ref:e.Reference||'',notes:e.Notes||''}));
+      saveLocal();
+      showStatus('Loaded from Excel!');
+      renderStats();
+      renderRecent();
+      popAccSel();
+    };
+    xhr.open('GET', url);
+    xhr.send();
+  } catch(e) {
+    const local = localStorage.getItem('ocelli_v6');
+    if (local) D = JSON.parse(local);
+    showStatus('Using local data', true);
+  }
+}
+
+async function syncExcel() {
+  if (!GH_TOKEN) {
+    showStatus('Token needed. Set: localStorage.setItem("gh_token", "your_token")', true);
+    return;
+  }
+  const btn = document.getElementById('syncBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Syncing...';
   try {
     const wb = XLSX.utils.book_new();
     const entries = D.entries.map(e => ({Date:e.date,Type:e.type,Account:e.account,Description:e.desc,Amount:e.amount,Reference:e.ref,Notes:e.notes}));
@@ -443,19 +485,40 @@ async function syncToGitHub() {
     const accounts = D.accounts.map(a => ({Name:a.name,Type:a.type,Code:a.code}));
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(accounts), 'Accounts');
     const blob = XLSX.write(wb, {bookType:'xlsx',type:'array'});
-    const b64 = btoa(String.fromCharCode(...blob));
-    const response = await fetch('/.github/api/repos/ocelliarts/accounts/contents/FINANCIALS.xlsx', {
+    const b64 = btoa(String.fromCharCode(...new Uint8Array(blob)));
+    
+    let sha = '';
+    try {
+      const getRes = await fetch(`${GH_API}/repos/${REPO}/contents/${FILE}`, {
+        headers: {'Authorization': `Bearer ${GH_TOKEN}`}
+      });
+      if (getRes.ok) {
+        const data = await getRes.json();
+        sha = data.sha;
+      }
+    } catch(e) {}
+    
+    const putRes = await fetch(`${GH_API}/repos/${REPO}/contents/${FILE}`, {
       method: 'PUT',
-      headers: {'Authorization': `Bearer ${localStorage.getItem('gh_token')||''}`, 'Content-Type': 'application/json'},
-      body: JSON.stringify({message:'Auto-sync: Update financial data',content:b64})
+      headers: {'Authorization': `Bearer ${GH_TOKEN}`, 'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        message: `Auto-sync: Update financial data [${new Date().toLocaleString()}]`,
+        content: b64,
+        ...(sha && {sha})
+      })
     });
-    if (response.ok) {
-      showStatus('✓ Synced to GitHub Excel file!');
+    
+    if (putRes.ok) {
+      showStatus('✅ Synced to Excel!');
     } else {
-      showStatus('Tip: Export to Excel locally to save data (requires GitHub token for auto-sync)', true);
+      const err = await putRes.json();
+      showStatus('Sync failed: ' + (err.message || 'Unknown error'), true);
     }
   } catch(e) {
-    showStatus('Download Excel file instead', true);
+    showStatus('Error: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Sync';
   }
 }
 
@@ -463,13 +526,13 @@ function downloadPDF() {
   const element = document.querySelector('.content');
   const opt = {
     margin: 10,
-    filename: 'Ocelli_Financial_Reports_' + new Date().toISOString().split('T')[0] + '.pdf',
+    filename: 'Ocelli_Reports_' + new Date().toISOString().split('T')[0] + '.pdf',
     image: {type:'jpeg',quality:0.98},
     html2canvas: {scale:2},
     jsPDF: {orientation:'portrait',unit:'mm',format:'a4'}
   };
   html2pdf().set(opt).from(element).save();
-  showStatus('PDF generated!');
+  showStatus('PDF downloaded!');
 }
 
 const fmt = n => '₹' + Math.abs(n).toLocaleString('en-IN', {minimumFractionDigits:2,maximumFractionDigits:2});
@@ -521,9 +584,7 @@ function closeSidebar() {
 }
 
 function renderStats() {
-  const inc = sumByType('income'), exp = sumByType('expense');
-  const net = inc - exp;
-  const assets = sumByType('asset');
+  const inc = sumByType('income'), exp = sumByType('expense'), net = inc - exp, assets = sumByType('asset');
   document.getElementById('stat-grid').innerHTML = `
     <div class="stat-card income"><div class="stat-label">Total Income</div><div class="stat-value">${fmt(inc)}</div><div class="stat-sub">All-time revenue</div></div>
     <div class="stat-card expense"><div class="stat-label">Total Expenses</div><div class="stat-value">${fmt(exp)}</div><div class="stat-sub">All-time costs</div></div>
@@ -546,7 +607,7 @@ function renderLedger() {
   if (f) rows = rows.filter(e => e.type === f);
   document.getElementById('ledger-tbl').innerHTML = rows.length
     ? `<div class="tbl-hdr"><h3>${rows.length} ${rows.length===1?'Entry':'Entries'}</h3></div><div class="tbl-scroll"><table><thead><tr><th>Date</th><th>Ref</th><th>Account</th><th>Description</th><th>Type</th><th style="text-align:right">Amount</th><th></th></tr></thead><tbody>${rows.map(e => `<tr><td style="color:var(--text-secondary);font-size:13px;white-space:nowrap;">${fmtDate(e.date)}</td><td style="color:var(--text-secondary);font-size:13px;">${e.ref || '—'}</td><td style="font-weight:600;">${e.account}</td><td>${e.desc}${e.notes?`<br><small style="color:var(--text-secondary);font-style:italic">${e.notes}</small>`:""}</td><td><span class="badge ${BADGE[e.type]}">${e.type}</span></td><td style="text-align:right" class="${e.type==='income'||e.type==='asset'?'ap':'an'}">${fmt(e.amount)}</td><td><button class="btn-del" onclick="delEntry(${e.id})" title="Delete">✕</button></td></tr>`).join('')}</tbody></table></div>`
-    : `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg><p>No entries match your filters</p></div>`;
+    : `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg><p>No entries match filters</p></div>`;
 }
 
 function renderAccounts() {
@@ -556,7 +617,7 @@ function renderAccounts() {
     const isCredit = t === 'liability' || t === 'equity';
     rows += `<tr><td style="color:var(--text-secondary);font-size:13px;">${a.code}</td><td style="font-weight:600;">${a.name}</td><td><span class="badge ${BADGE[t]}">${t}</span></td><td style="text-align:right" class="${isCredit?'an':'ap'}">${b ? fmt(b) : '—'}</td><td><button class="btn-del" onclick="delAcc(${a.id})" title="Delete account">✕</button></td></tr>`;
   }));
-  document.getElementById('acc-tbl').innerHTML = `<div class="tbl-hdr"><h3>Chart of Accounts</h3><span style="font-family:var(--font);font-size:13.5px;color:var(--text-secondary);font-style:italic;">${D.accounts.length} accounts</span></div><div class="tbl-scroll"><table><thead><tr><th>Code</th><th>Account Name</th><th>Type</th><th style="text-align:right">Balance</th><th></th></tr></thead><tbody>${rows || `<tr><td colspan="5"><div class="empty" style="padding:40px;"><p>No accounts yet</p></div></td></tr>`}</tbody></table></div>`;
+  document.getElementById('acc-tbl').innerHTML = `<div class="tbl-hdr"><h3>Chart of Accounts</h3><span style="font-family:var(--font);font-size:13.5px;color:var(--text-secondary);font-style:italic;">${D.accounts.length} accounts</span></div><div class="tbl-scroll"><table><thead><tr><th>Code</th><th>Account Name</th><th>Type</th><th style="text-align:right">Balance</th><th></th></tr></thead><tbody>${rows || `<tr><td colspan="5"><div class="empty" style="padding:40px;"><p>No accounts</p></div></td></tr>`}</tbody></table></div>`;
 }
 
 const rptHdr = title => `<div class="rpt-hdr"><div class="rpt-co">OCELLI</div><div class="rpt-title">${title}</div><div class="rpt-period">As of ${new Date().toLocaleDateString('en-IN',{year:'numeric',month:'long',day:'numeric'})}</div><div class="rpt-rule"></div></div>`;
@@ -598,11 +659,7 @@ function renderIE() {
 }
 
 function renderBS() {
-  const ta = sumByType('asset');
-  const tl = sumByType('liability');
-  const te = sumByType('equity');
-  const ret = sumByType('income') - sumByType('expense');
-  const ok = Math.abs(ta - (tl + te + ret)) < 0.01;
+  const ta = sumByType('asset'), tl = sumByType('liability'), te = sumByType('equity'), ret = sumByType('income') - sumByType('expense'), ok = Math.abs(ta - (tl + te + ret)) < 0.01;
   let h = rptHdr('Balance Sheet');
   h += `<div class="two-col"><div><div class="rpt-sec blu">Assets</div>`;
   D.accounts.filter(a=>a.type==='asset').forEach(a => { const v = accBal(a.name); if (v) h += `<div class="rpt-row"><span>${a.name}</span><span class="rv ap">${fmt(v)}</span></div>`; });
@@ -611,7 +668,7 @@ function renderBS() {
   h += `<div class="rpt-row tot"><span>Total Liabilities</span><span class="rv an">${fmt(tl)}</span></div><div class="rpt-sec" style="margin-top:6px;">Equity</div>`;
   D.accounts.filter(a=>a.type==='equity').forEach(a => { const v = accBal(a.name); if (v) h += `<div class="rpt-row"><span>${a.name}</span><span class="rv am">${fmt(v)}</span></div>`; });
   if (ret) h += `<div class="rpt-row"><span style="font-style:italic;">Retained Earnings</span><span class="rv ${ret>=0?'ap':'an'}">${fmt(ret)}</span></div>`;
-  h += `<div class="rpt-row tot"><span>Total Equity</span><span class="rv am">${fmt(te + ret)}</span></div></div></div><div class="bal-row${ok?'':' no'}"><span>${ok ? '✓  Balance Sheet is Balanced' : '⚠  Not Balanced'}</span><span style="font-style:italic;">Assets = Liabilities + Equity</span></div>`;
+  h += `<div class="rpt-row tot"><span>Total Equity</span><span class="rv am">${fmt(te + ret)}</span></div></div></div><div class="bal-row${ok?'':' no'}"><span>${ok ? '✓  Balanced' : '⚠  Not Balanced'}</span><span style="font-style:italic;">Assets = Liabilities + Equity</span></div>`;
   document.getElementById('bs-rpt').innerHTML = h;
 }
 
@@ -626,8 +683,8 @@ function renderTB() {
   });
   const ok = Math.abs(tDr - tCr) < 0.01;
   let h = rptHdr('Trial Balance');
-  h += `<div class="tbl-scroll"><table><thead><tr><th>Code</th><th>Account</th><th>Type</th><th style="text-align:right">Debit (Dr)</th><th style="text-align:right">Credit (Cr)</th></tr></thead><tbody>${rows || `<tr><td colspan="5"><div class="empty" style="padding:40px;"><p>No account balances recorded</p></div></td></tr>`}</tbody><tfoot><tr style="background:var(--surf);"><td colspan="3" style="padding:12px 22px;font-family:var(--font);font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text-secondary);font-style:italic;">Totals</td><td class="ap" style="font-weight:700;padding:12px 22px;text-align:right;">${fmt(tDr)}</td><td class="an" style="font-weight:700;padding:12px 22px;text-align:right;">${fmt(tCr)}</td></tr></tfoot></table></div>`;
-  h += `<div class="bal-row${ok?'':' no'}"><span>${ok ? '✓  Trial Balance Balanced' : '⚠  Difference: ' + fmt(Math.abs(tDr - tCr))}</span><span style="font-style:italic;">Total Dr = Total Cr</span></div>`;
+  h += `<div class="tbl-scroll"><table><thead><tr><th>Code</th><th>Account</th><th>Type</th><th style="text-align:right">Debit (Dr)</th><th style="text-align:right">Credit (Cr)</th></tr></thead><tbody>${rows || `<tr><td colspan="5"><div class="empty"><p>No account balances</p></div></td></tr>`}</tbody><tfoot><tr style="background:var(--surf);"><td colspan="3" style="padding:12px 22px;font-family:var(--font);font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-secondary);font-style:italic;">Totals</td><td class="ap" style="font-weight:700;padding:12px 22px;text-align:right;">${fmt(tDr)}</td><td class="an" style="font-weight:700;padding:12px 22px;text-align:right;">${fmt(tCr)}</td></tr></tfoot></table></div>`;
+  h += `<div class="bal-row${ok?'':' no'}"><span>${ok ? '✓  Balanced' : '⚠  Difference: ' + fmt(Math.abs(tDr - tCr))}</span><span style="font-style:italic;">Total Dr = Total Cr</span></div>`;
   document.getElementById('tb-rpt').innerHTML = h;
 }
 
@@ -651,9 +708,7 @@ function closeModal() {
 function popAccSel() {
   const t = document.getElementById('ft').value;
   const opts = D.accounts.filter(a => a.type === t);
-  document.getElementById('fa').innerHTML = opts.length
-    ? opts.map(a => `<option value="${a.name}">${a.name}</option>`).join('')
-    : `<option value="">No accounts of this type</option>`;
+  document.getElementById('fa').innerHTML = opts.length ? opts.map(a => `<option value="${a.name}">${a.name}</option>`).join('') : `<option value="">No accounts</option>`;
 }
 
 function saveEntry() {
@@ -662,23 +717,25 @@ function saveEntry() {
   const account = document.getElementById('fa').value;
   const desc    = document.getElementById('fdesc').value.trim();
   const amount  = parseFloat(document.getElementById('famt').value);
-  if (!date)             { showStatus('Please select a date.', true); return; }
-  if (!desc)             { showStatus('Please enter a description.', true); return; }
-  if (!amount || isNaN(amount) || amount <= 0) { showStatus('Enter valid positive amount.', true); return; }
-  if (!account)          { showStatus('Please select an account.', true); return; }
+  if (!date)             { showStatus('Select a date', true); return; }
+  if (!desc)             { showStatus('Enter description', true); return; }
+  if (!amount || isNaN(amount) || amount <= 0) { showStatus('Valid amount required', true); return; }
+  if (!account)          { showStatus('Select account', true); return; }
   D.entries.push({id:D.nextId++,date,type,account,desc,amount,ref:document.getElementById('fref').value.trim(),notes:document.getElementById('fnotes').value.trim()});
-  save();
+  saveLocal();
+  if (GH_TOKEN) syncExcel();
   closeModal();
   refreshCurrentPage();
   showStatus('Entry saved!');
 }
 
 function delEntry(id) {
-  if (!confirm('Delete this entry?')) return;
+  if (!confirm('Delete entry?')) return;
   D.entries = D.entries.filter(e => e.id !== id);
-  save();
+  saveLocal();
+  if (GH_TOKEN) syncExcel();
   refreshCurrentPage();
-  showStatus('Entry deleted');
+  showStatus('Deleted');
 }
 
 function openAccModal() { document.getElementById('acc-modal').classList.add('open'); }
@@ -694,9 +751,10 @@ function saveAcc() {
   const type = document.getElementById('at').value;
   const code = document.getElementById('ac').value.trim();
   if (!name) { showStatus('Enter account name', true); return; }
-  if (D.accounts.some(a => a.name.toLowerCase() === name.toLowerCase())) { showStatus('Account already exists', true); return; }
+  if (D.accounts.some(a => a.name.toLowerCase() === name.toLowerCase())) { showStatus('Account exists', true); return; }
   D.accounts.push({ id: Date.now(), name, type, code: code || String(1000 + D.accounts.length) });
-  save();
+  saveLocal();
+  if (GH_TOKEN) syncExcel();
   closeAccModal();
   renderAccounts();
   showStatus('Account created!');
@@ -706,14 +764,15 @@ function delAcc(id) {
   const acc = D.accounts.find(a => a.id === id);
   if (!acc) return;
   if (D.entries.some(e => e.account === acc.name)) {
-    if (!confirm(`"${acc.name}" has entries. Delete anyway?`)) return;
+    if (!confirm(`"${acc.name}" has entries. Delete?`)) return;
   } else {
-    if (!confirm(`Delete account "${acc.name}"?`)) return;
+    if (!confirm(`Delete "${acc.name}"?`)) return;
   }
   D.accounts = D.accounts.filter(a => a.id !== id);
-  save();
+  saveLocal();
+  if (GH_TOKEN) syncExcel();
   renderAccounts();
-  showStatus('Account deleted');
+  showStatus('Deleted');
 }
 
 function setP(r, p, btn) {
@@ -749,9 +808,12 @@ document.addEventListener('keydown', e => {
   }
 });
 
-renderStats();
-renderRecent();
-popAccSel();
+(async () => {
+  await loadFromExcel();
+  renderStats();
+  renderRecent();
+  popAccSel();
+})();
 </script>
 </body>
 </html>
