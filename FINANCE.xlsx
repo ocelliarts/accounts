@@ -1,18 +1,5 @@
 {
-  "entries": [
-    {
-      "id": 1,
-      "date": "2026-02-19",
-      "type": "expense",
-      "account": "Legal Fees",
-      "desc": "Company formation and EIN",
-      "amount": 120,
-      "paidBy": "Gautham Dhar",
-      "paidTo": "CT Gov",
-      "ref": "",
-      "notes": ""
-    }
-  ],
+  "entries": [],
   "accounts": [
     {
       "id": 1,
