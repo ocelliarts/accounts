@@ -1,5 +1,20 @@
 {
-  "entries": [],
+  "entries": [
+    {
+      "id": 2,
+      "txnId": "TXN-000002",
+      "date": "2026-05-15",
+      "type": "asset",
+      "account": "Bank Account",
+      "desc": "Opening Balance",
+      "amount": 719,
+      "paidBy": "None",
+      "paidTo": "None",
+      "usdInrRate": 84,
+      "ref": "",
+      "notes": "Opening Balance"
+    }
+  ],
   "accounts": [
     {
       "id": 1,
@@ -110,11 +125,13 @@
       "code": "5007"
     }
   ],
-  "nextId": 2,
+  "nextId": 3,
   "paidByList": [
-    "Gautham Dhar"
+    "Gautham Dhar",
+    "None"
   ],
   "paidToList": [
-    "CT Gov"
+    "CT Gov",
+    "None"
   ]
 }
